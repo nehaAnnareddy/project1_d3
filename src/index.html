@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+
+    <!-- <div class="overlay" id="overlay">
+        <h1>County Insights: Health, Economy, and Education Across the U.S.</h1>
+        <p><strong>Created by: Neha Annareddy</strong></p>
+        <p>Data Source: CDC National Health Data 2024 | Libraries: D3.js</p>
+        <button onclick="closeOverlay()">View Data Visualizations</button>
+    </div> -->
+
+    <div class="area1">
+        <div class="area3">
+            <iframe src="histogram.html" id="histogram-frame"></iframe>
+        </div>
+        
+        <div class="area4">
+            <iframe src="histogram2.html" id="histogram2-frame"></iframe>
+        </div>
+        
+    </div>
+
+    <div class="area5">
+        <iframe src="choropleth.html" id="choropleth-frame"></iframe>
+    </div>    
+
+    <div class="area2">
+        <iframe src="scatterplot.html" id="scatterplot-frame"></iframe>
+    </div>    
+    
+    <div class="area6">
+        <iframe src="choropleth2.html" id="choropleth2-frame"></iframe>
+    </div>
+    
+
+    <script>
+        function closeOverlay() {
+            document.getElementById("overlay").style.display = "none";
+        }
+    </script>
+
+</body>
+</html>

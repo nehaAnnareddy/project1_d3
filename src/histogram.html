@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Histogram</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            font-size:16px;
+        }
+        .tooltip {
+            position: absolute;
+            background: white;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .axis-label {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .x-axis text, .y-axis text {
+            font-size: 17px; 
+        }
+        .controls {
+            margin: 10px;
+        }
+        svg {
+            width: 100%;
+            height: 600px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center;
+            gap: 10px;
+            padding: 5px;
+            background-color: #ffffff; 
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls label {
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-top: 10px;
+        }
+
+        .controls select, .controls button {
+            font-size: 16px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .controls select:hover, .controls button:hover {
+            border-color: #888;
+        }
+
+        .controls button {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #e68900;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <label for="variableSelect">Select Dataset:</label>
+        <select id="variableSelect">
+            <option value="poverty_perc">Poverty Rate (%)</option>
+            <option value="median_household_income">Median Household Income ($)</option>
+            <option value="education_less_than_high_school_percent">Less than High School (%)</option>
+        </select>
+    
+        <label for="stateFilter">Filter by State:</label>
+        <select id="stateFilter">
+            <option value="all">All States</option>
+        </select>
+    
+    </div>
+    
+
+    <div class="chart-container">
+        <svg></svg>
+    </div>
+    <div class="tooltip"></div>
+
+    <script>
+        const margin = { top: 50, right: 90, bottom: 50, left: 80 };
+        const width = 900 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        const svg = d3.select("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const xScale = d3.scaleLinear().range([0, width]);  // ✅ Switched to scaleLinear
+        const yScale = d3.scaleLinear().range([height, 0]);
+
+        const tooltip = d3.select(".tooltip");
+
+        d3.csv("/data/cleaned_national_health_data_2024.csv").then(data => {
+            data.forEach(d => {
+                d.poverty_perc = +d.poverty_perc;
+                d.education_less_than_high_school_percent = +d.education_less_than_high_school_percent;
+                d.median_household_income = +d.median_household_income;
+            });
+
+            const states = [...new Set(data.map(d => d.state))].sort();
+            d3.select("#stateFilter").selectAll("option")
+                .data(states)
+                .enter().append("option")
+                .attr("value", d => d)
+                .text(d => d);
+
+            function createHistogram(selectedVariable = "poverty_perc", selectedState = "all") {
+                let filteredData = selectedState === "all" ? data : data.filter(d => d.state === selectedState);
+
+                // **Dynamically adjust bins based on data range**
+                const minValue = d3.min(filteredData, d => d[selectedVariable]);
+                const maxValue = d3.max(filteredData, d => d[selectedVariable]);
+                const binWidth = (maxValue - minValue) / 20; // **Auto-adjust bins**
+                
+                const bins = d3.bin()
+                    .domain([minValue, maxValue])
+                    .thresholds(d3.range(minValue, maxValue, binWidth))
+                    (filteredData.map(d => d[selectedVariable]));
+
+                // **Update scales dynamically**
+                xScale.domain([minValue, maxValue]); // ✅ Ensure xScale uses the full range
+                yScale.domain([0, d3.max(bins, d => d.length) * 1.1]);
+
+                // **Remove old elements before redrawing**
+                svg.selectAll(".bar, .x-axis, .y-axis, .axis-label").remove();
+
+                // **Draw X-Axis**
+                svg.append("g")
+                    .attr("class", "x-axis")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(xScale).ticks(10).tickFormat(d3.format(".2s"))); // ✅ Adjust tick format
+
+                // **Draw Y-Axis**
+                svg.append("g")
+                    .attr("class", "y-axis")
+                    .call(d3.axisLeft(yScale));
+
+                // **Draw Bars**
+                svg.selectAll(".bar")
+                    .data(bins)
+                    .enter().append("rect")
+                    .attr("class", "bar")
+                    .attr("x", d => xScale(d.x0))
+                    .attr("y", d => yScale(d.length))
+                    .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 8))  // Adjust `-4` to control padding
+                    .attr("height", d => height - yScale(d.length))
+                    .attr("fill", "#8c96c6")
+                    .attr("stroke", "black")
+                    .attr("stroke-width", 0.3)
+                    .on("mouseover", (event, d) => {
+                        tooltip.style("visibility", "visible")
+                            .html(`<strong>Range:</strong> ${Math.round(d.x0)}-${Math.round(d.x1)}<br>
+                                   <strong>Number of Counties:</strong> ${d.length}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 20) + "px");
+                    })
+                    .on("mousemove", (event) => {
+                        tooltip.style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 20) + "px");
+                    })
+                    .on("mouseout", () => {
+                        tooltip.style("visibility", "hidden");
+                    });
+
+                // **Update X-Axis Label**
+                svg.append("text")
+                    .attr("class", "axis-label")
+                    .attr("x", width / 2)
+                    .attr("y", height + margin.bottom - 5)
+                    .style("text-anchor", "middle")
+                    .text(d3.select("#variableSelect").node().selectedOptions[0].text);
+
+                // **Update Y-Axis Label**
+                svg.append("text")
+                    .attr("class", "axis-label")
+                    .attr("transform", "rotate(-90)")
+                    .attr("x", -height / 2)
+                    .attr("y", -50)
+                    .style("text-anchor", "middle")
+                    .text("Number of Counties");
+            }
+
+            // **Initial Histogram Load**
+            createHistogram();
+
+            // **Event Listeners**
+            d3.select("#variableSelect").on("change", function() {
+                createHistogram(this.value, d3.select("#stateFilter").property("value"));
+            });
+
+            d3.select("#stateFilter").on("change", function() {
+                createHistogram(d3.select("#variableSelect").property("value"), this.value);
+            });
+
+        }).catch(error => console.log(error));
+    </script>
+
+</body>
+</html>

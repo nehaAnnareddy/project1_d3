@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scatterplot: Dynamic Comparison</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .tooltip {
+      position: absolute;
+      background: white;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      visibility: hidden;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .axis-label {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .x-axis text, .y-axis text {
+            font-size: 17px; 
+        }
+    .controls {
+      margin: 10px;
+    }
+    svg {
+      width: 90%;
+      display: block;
+      margin: auto;
+      margin-left: 100px;
+    }
+    .controls {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center;
+            gap: 10px;
+            padding: 5px;
+            background-color: #ffffff; 
+            border-radius: 8px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls label {
+            font-size: 16px;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-top: 10px;
+        }
+
+        .controls select, .controls button {
+            font-size: 16px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .controls select:hover, .controls button:hover {
+            border-color: #888;
+        }
+
+        .controls button {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            transition: 0.3s;
+        }
+
+        .controls button:hover {
+            background-color: #e68900;
+        }
+  </style>
+</head>
+<body>
+
+  <!-- Control Panel -->
+  <div class="controls">
+    <label for="xAxisSelect">X-Axis:</label>
+    <select id="xAxisSelect">
+        <option value="poverty_perc">Poverty Rate (%)</option>
+        <option value="median_household_income">Median Household Income</option>
+        <option value="education_less_than_high_school_percent">Less than High School (%)</option>
+    </select>
+
+    <label for="yAxisSelect">Y-Axis:</label>
+    <select id="yAxisSelect">
+        <option value="percent_high_cholesterol">High Cholesterol (%)</option>
+        <option value="percent_coronary_heart_disease">Coronary Heart Disease (%)</option>
+        <option value="percent_high_blood_pressure">High Blood Pressure (%)</option>
+    </select>
+
+    <label for="stateFilter">Filter by State:</label>
+    <select id="stateFilter">
+        <option value="all">All States</option>
+    </select>
+
+    <label for="urbanRuralFilter">Urban/Rural:</label>
+    <select id="urbanRuralFilter">
+        <option value="all">All</option>
+        <option value="Rural">Rural</option>
+        <option value="Suburban">Suburban</option>
+        <option value="Urban">Urban</option>
+        <option value="Small City">Small City</option>
+    </select>
+
+    <label>
+        <input type="checkbox" id="colorToggle"> Color by Urban/Rural
+    </label>
+
+</div>
+
+
+  <!-- SVG Container -->
+  <svg width="1400" height="600">
+    <defs>
+      <clipPath id="chart-area">
+        <rect x="90" y="50" width="750" height="500"></rect> <!-- Clipping Region -->
+      </clipPath>
+    </defs>
+  </svg>
+  <div class="tooltip"></div>
+
+  <script>
+    const margin = { top: 50, right: 50, bottom: 70, left: 90 };
+    const width = 1400;
+    const height = 600;
+    const circleRadius = 3;
+
+    const svg = d3.select("svg");
+    const tooltip = d3.select(".tooltip");
+
+    const xScale = d3.scaleLinear().range([margin.left, width - margin.right]);
+    const yScale = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+
+    const colorScale = d3.scaleOrdinal()
+      .domain(["Rural", "Suburban", "Urban", "Small City"])
+      .range(["#ffa600", "#bc5090", "#ff6361", "#58508d"]);
+
+      const zoom = d3.zoom()
+      .scaleExtent([1, 8]) // Limit zoom range
+      .translateExtent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]]) // Keep zoom inside bounds
+      .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
+      .on("zoom", (event) => {
+        const transform = event.transform;
+        svg.select(".x-axis").call(d3.axisBottom(xScale).scale(transform.rescaleX(xScale)));
+        svg.select(".y-axis").call(d3.axisLeft(yScale).scale(transform.rescaleY(yScale)));
+        svg.selectAll("circle").attr("transform", transform).attr("r", circleRadius / transform.k); // Keep circle size
+      });
+
+    svg.call(zoom);
+
+    d3.csv("/data/cleaned_national_health_data_2024.csv").then(data => {
+      data.forEach(d => {
+        d.poverty_perc = +d.poverty_perc;
+        d.median_household_income = +d.median_household_income;
+        d.education_less_than_high_school_percent = +d.education_less_than_high_school_percent;
+        d.percent_high_cholesterol = +d.percent_high_cholesterol;
+        d.percent_coronary_heart_disease = +d.percent_coronary_heart_disease;
+        d.percent_high_blood_pressure = +d.percent_high_blood_pressure;
+      });
+
+      const states = [...new Set(data.map(d => d.state))].sort();
+      d3.select("#stateFilter").selectAll("option")
+        .data(states)
+        .enter().append("option")
+        .attr("value", d => d)
+        .text(d => d);
+
+      function updateScatterplot(xVar = "poverty_perc", yVar = "percent_high_cholesterol", selectedState = "all", urbanRural = "all") {
+        let filteredData = data;
+        if (selectedState !== "all") {
+          filteredData = filteredData.filter(d => d.state === selectedState);
+        }
+        if (urbanRural !== "all") {
+          filteredData = filteredData.filter(d => d.urban_rural_status === urbanRural);
+        }
+
+        // Fix: Ensure padding in domains so no circles are clipped
+        xScale.domain([d3.min(filteredData, d => d[xVar]) * 0.95, d3.max(filteredData, d => d[xVar]) * 1.05]);
+        yScale.domain([d3.min(filteredData, d => d[yVar]) * 0.95, d3.max(filteredData, d => d[yVar]) * 1.05]);
+
+        svg.selectAll("circle").remove();
+        svg.selectAll(".x-axis, .y-axis, .axis-label").remove();
+
+        svg.append("g")
+          .attr("class", "x-axis")
+          .attr("transform", `translate(0, ${height - margin.bottom})`)
+          .call(d3.axisBottom(xScale));
+
+        svg.append("g")
+          .attr("class", "y-axis")
+          .attr("transform", `translate(${margin.left}, 0)`)
+          .call(d3.axisLeft(yScale));
+
+        svg.append("text")
+          .attr("class", "axis-label")
+          .attr("x", width / 2)
+          .attr("y", height - 20)
+          .style("text-anchor", "middle")
+          .text(d3.select("#xAxisSelect").node().selectedOptions[0].text);
+
+        svg.append("text")
+          .attr("class", "axis-label")
+          .attr("transform", "rotate(-90)")
+          .attr("x", -height / 2)
+          .attr("y", 20)
+          .style("text-anchor", "middle")
+          .text(d3.select("#yAxisSelect").node().selectedOptions[0].text);
+
+        const useColor = d3.select("#colorToggle").property("checked");
+
+        svg.append("g")
+          .attr("clip-path", "url(#chart-area)")
+
+          svg.selectAll("circle")
+          .data(filteredData)
+          .enter().append("circle")
+          .attr("cx", d => xScale(d[xVar]))
+          .attr("cy", d => yScale(d[yVar]))
+          .attr("r", circleRadius)
+          .attr("fill", d => useColor ? colorScale(d.urban_rural_status) : "gray")
+          .attr("opacity", 0.85)
+          .on("mouseover", (event, d) => {
+            tooltip.style("visibility", "visible")
+              .html(`<strong>County:</strong> ${d.display_name}, ${d.state}<br>
+                     Poverty: ${d.poverty_perc}%<br>
+                     Median Income: $${d.median_household_income}<br>
+                     High School: ${d.education_less_than_high_school_percent}%<br>
+                     High Cholesterol: ${d.percent_high_cholesterol}%<br>
+                     Coronary Heart Disease: ${d.percent_coronary_heart_disease}%<br>
+                     High Blood Pressure: ${d.percent_high_blood_pressure}%`)
+              .style("left", (event.pageX + 10) + "px")
+              .style("top", (event.pageY - 20) + "px");
+          })
+          .on("mouseout", () => tooltip.style("visibility", "hidden"));
+      }
+
+      updateScatterplot();
+
+      d3.selectAll("select, #colorToggle").on("change", () => updateScatterplot(
+        d3.select("#xAxisSelect").property("value"), 
+        d3.select("#yAxisSelect").property("value"),
+        d3.select("#stateFilter").property("value"),
+        d3.select("#urbanRuralFilter").property("value")
+      ));
+    });
+  </script>
+</body>
+</html>
