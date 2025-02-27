@@ -124,7 +124,7 @@ Hovering over the bars reveals additional details via a tooltip.
 
         const tooltip = d3.select(".tooltip");
 
-        d3.csv("/data/Modified_National_Health_Data_2024.csv").then(data => {
+        d3.csv("/public/Modified_National_Health_Data_2024.csv").then(data => {
             data.forEach(d => {
                 d.percent_high_cholesterol = +d.percent_high_cholesterol;
                 d.percent_high_blood_pressure = +d.percent_high_blood_pressure;

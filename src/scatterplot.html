@@ -166,7 +166,7 @@ The visualization supports zooming and panning while ensuring the axes remain in
 
     svg.call(zoom);
 
-    d3.csv("/data/Modified_National_Health_Data_2024.csv").then(data => {
+    d3.csv("/public/Modified_National_Health_Data_2024.csv").then(data => {
       data.forEach(d => {
         d.poverty_perc = +d.poverty_perc;
         d.median_household_income = +d.median_household_income;

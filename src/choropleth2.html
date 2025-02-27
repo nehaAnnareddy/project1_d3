@@ -155,7 +155,7 @@ A dropdown menu allows users to switch between datasets, while zoom functionalit
 
         Promise.all([
             d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json"),
-            d3.csv("/data/Cleaned_National_Health_Data.csv")
+            d3.csv("/public/Cleaned_National_Health_Data.csv")
         ]).then(([us, data]) => {
             countyData = new Map(data.map(d => [d.cnty_fips.padStart(5, '0'), { 
                 name: d.display_name.replace(/"/g, ""),

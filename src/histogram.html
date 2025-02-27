@@ -126,7 +126,7 @@ Hovering over bars reveals additional details through a tooltip.
 
         const tooltip = d3.select(".tooltip");
 
-        d3.csv("/data/Modified_National_Health_Data_2024.csv").then(data => {
+        d3.csv("/public/Modified_National_Health_Data_2024.csv").then(data => {
             data.forEach(d => {
                 d.poverty_perc = +d.poverty_perc;
                 d.education_less_than_high_school_percent = +d.education_less_than_high_school_percent;
