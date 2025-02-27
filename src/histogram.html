@@ -112,7 +112,7 @@
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
-        const xScale = d3.scaleLinear().range([0, width]);  // ✅ Switched to scaleLinear
+        const xScale = d3.scaleLinear().range([0, width]); 
         const yScale = d3.scaleLinear().range([height, 0]);
 
         const tooltip = d3.select(".tooltip");
@@ -134,28 +134,28 @@
             function createHistogram(selectedVariable = "poverty_perc", selectedState = "all") {
                 let filteredData = selectedState === "all" ? data : data.filter(d => d.state === selectedState);
 
-                // **Dynamically adjust bins based on data range**
+           
                 const minValue = d3.min(filteredData, d => d[selectedVariable]);
                 const maxValue = d3.max(filteredData, d => d[selectedVariable]);
-                const binWidth = (maxValue - minValue) / 20; // **Auto-adjust bins**
+                const binWidth = (maxValue - minValue) / 20; 
                 
                 const bins = d3.bin()
                     .domain([minValue, maxValue])
                     .thresholds(d3.range(minValue, maxValue, binWidth))
                     (filteredData.map(d => d[selectedVariable]));
 
-                // **Update scales dynamically**
-                xScale.domain([minValue, maxValue]); // ✅ Ensure xScale uses the full range
+                
+                xScale.domain([minValue, maxValue]);
                 yScale.domain([0, d3.max(bins, d => d.length) * 1.1]);
 
-                // **Remove old elements before redrawing**
+                
                 svg.selectAll(".bar, .x-axis, .y-axis, .axis-label").remove();
 
                 // **Draw X-Axis**
                 svg.append("g")
                     .attr("class", "x-axis")
                     .attr("transform", `translate(0,${height})`)
-                    .call(d3.axisBottom(xScale).ticks(10).tickFormat(d3.format(".2s"))); // ✅ Adjust tick format
+                    .call(d3.axisBottom(xScale).ticks(10).tickFormat(d3.format(".2s"))); 
 
                 // **Draw Y-Axis**
                 svg.append("g")
@@ -169,7 +169,7 @@
                     .attr("class", "bar")
                     .attr("x", d => xScale(d.x0))
                     .attr("y", d => yScale(d.length))
-                    .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 8))  // Adjust `-4` to control padding
+                    .attr("width", d => Math.max(0, xScale(d.x1) - xScale(d.x0) - 8))  
                     .attr("height", d => height - yScale(d.length))
                     .attr("fill", "#8c96c6")
                     .attr("stroke", "black")
@@ -189,7 +189,7 @@
                         tooltip.style("visibility", "hidden");
                     });
 
-                // **Update X-Axis Label**
+                
                 svg.append("text")
                     .attr("class", "axis-label")
                     .attr("x", width / 2)
@@ -197,7 +197,7 @@
                     .style("text-anchor", "middle")
                     .text(d3.select("#variableSelect").node().selectedOptions[0].text);
 
-                // **Update Y-Axis Label**
+                
                 svg.append("text")
                     .attr("class", "axis-label")
                     .attr("transform", "rotate(-90)")
@@ -207,10 +207,8 @@
                     .text("Number of Counties");
             }
 
-            // **Initial Histogram Load**
             createHistogram();
 
-            // **Event Listeners**
             d3.select("#variableSelect").on("change", function() {
                 createHistogram(this.value, d3.select("#stateFilter").property("value"));
             });

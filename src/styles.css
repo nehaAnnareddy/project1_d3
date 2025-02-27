@@ -2,31 +2,31 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    height: 100vh; /* Ensure the entire viewport height is used */
+    height: 100vh; 
     display: grid;
-    grid-template-columns: 8fr 6fr; /* First column 8/14, second column 6/14 */
-    grid-template-rows: 1fr 1fr;   /* Two equal rows */
+    grid-template-columns: 8fr 6fr; 
+    grid-template-rows: 1fr 1fr;   
     gap: 10px;
     padding: 10px;
     background-color: #f4f4f4;
 }
 
-/* Left Column (8/14 width) */
+
 .left-container {
     display: grid;
-    gap: 10px;
-    height: 100%; /* Ensure full height usage */
-}
-
-/* Top Left: Histograms Split into Two Equal Parts */
-.area1 {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal histograms */
     gap: 10px;
     height: 100%;
 }
 
-/* Each histogram should take full space */
+
+.area1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px;
+    height: 100%;
+}
+
+
 .histogram {
     display: flex;
     justify-content: center;
@@ -37,7 +37,7 @@ body {
     height: 100%;
 }
 
-/* Bottom Left: Scatterplot */
+
 .area2 {
     display: flex;
     justify-content: center;
@@ -54,11 +54,11 @@ body {
     border: none;
 }
 
-/* Right Column (6/14 width): Two choropleth maps stacked */
+
 .right-container {
     display: grid;
     gap: 10px;
-    height: 100%; /* Ensure full height usage */
+    height: 100%;
 }
 
 .area3 {
@@ -130,8 +130,6 @@ body {
 
 
 
-
-/* Each choropleth map */
 .choropleth {
     display: flex;
     justify-content: center;
@@ -142,14 +140,14 @@ body {
     height: 100%;
 }
 
-/* Full-screen overlay */
+
 .overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.8); /* Dark semi-transparent background */
+    background: rgba(0, 0, 0, 0.8); 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -157,16 +155,16 @@ body {
     color: white;
     text-align: center;
     font-family: Arial, sans-serif;
-    z-index: 1000; /* Ensure it's above everything */
+    z-index: 1000; 
 }
 
-/* Button styling */
+
 .overlay button {
     margin-top: 20px;
     padding: 10px 20px;
     font-size: 18px;
     border: none;
-    background-color: #ff9800;
+    background-color: #1e9dff;
     color: white;
     cursor: pointer;
     border-radius: 5px;

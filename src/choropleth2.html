@@ -222,11 +222,11 @@
                     .enter().append("div")
                     .attr("class", "legend-item")
                     .html((d, i) => {
-                        const prevVal = i === 0 ? 0 : legendData[i - 1]; // Get previous value
+                        const prevVal = i === 0 ? 0 : legendData[i - 1]; 
                         return `<span class="legend-color" style="background:${colorScale(d)}"></span> ${prevVal}-${d}%`;
                     })
                     .on("click", function(event, d) {
-                        const prevVal = legendData[legendData.indexOf(d) - 1] || 0; // Get previous threshold
+                        const prevVal = legendData[legendData.indexOf(d) - 1] || 0; 
                         paths.transition().duration(500)
                             .attr("opacity", p => {
                                 const info = countyData.get(p.id);
