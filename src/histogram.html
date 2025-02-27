@@ -1,3 +1,12 @@
+<!-- 
+Wealth/Education Histogram Visualization
+
+This interactive D3.js histogram allows users to analyze the distribution of key socioeconomic indicators across U.S. counties. 
+Users can select different datasets (e.g., Poverty Rate, Median Household Income) and filter by state to refine the analysis. 
+The histogram dynamically updates with binning based on the data range, providing insights into data distribution. 
+Hovering over bars reveals additional details through a tooltip. 
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,7 +126,7 @@
 
         const tooltip = d3.select(".tooltip");
 
-        d3.csv("/data/cleaned_national_health_data_2024.csv").then(data => {
+        d3.csv("/data/Modified_National_Health_Data_2024.csv").then(data => {
             data.forEach(d => {
                 d.poverty_perc = +d.poverty_perc;
                 d.education_less_than_high_school_percent = +d.education_less_than_high_school_percent;

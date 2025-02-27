@@ -1,3 +1,12 @@
+<!-- 
+U.S. County Data - Choropleth Maps
+
+This interactive D3.js choropleth map visualizes U.S. county-level data on Poverty Rates, Median Household Income, and Education Levels. 
+Users can toggle between datasets using a dropdown menu to explore socioeconomic patterns across counties. 
+The maps are color-coded based on data ranges, and users can zoom in and out for detailed analysis. 
+Hovering over a county displays a tooltip with relevant statistics, while a clickable legend provides additional interactivity.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -162,10 +171,10 @@
                     .range([ "#e0ecf4", "#bfd3e6", "#9ebcda", "#8c96c6", "#8c6bb1", "#88419d", "#810f7c", "#4d004b"]),
                 
                 income: d3.scaleThreshold().domain([25000, 40000, 55000, 70000, 85000, 100000, 120000])
-                    .range(["#fee6ce", "#fee6ce", "#fdae61", "#fd8d3c", "#e6550d", "#a63603", "#7f2704"]),
+                    .range(["#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#006d2c", "#00441b"]),
                 
                 education: d3.scaleThreshold().domain([5, 10, 15, 20, 25, 30, 35])
-                    .range(["#f7fcfd", "#e5f5f9", "#99d8c9", "#66c2a4", "#41ae76", "#238b45", "#005824"])
+                    .range(["#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"])
             };
 
             function drawMap(variable, mapId, groupId) {

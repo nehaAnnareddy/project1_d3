@@ -1,3 +1,12 @@
+<!-- 
+U.S. County Health Data - Choropleth Maps
+
+This interactive D3.js choropleth map visualizes county-level health data across the United States. 
+Users can explore three key health metrics: High Cholesterol, High Blood Pressure, and Coronary Heart Disease percentages. 
+The maps are color-coded based on data ranges, with a tooltip displaying county-specific information on hover. 
+A dropdown menu allows users to switch between datasets, while zoom functionality enables closer inspection of specific regions.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -160,13 +169,13 @@
 
             const colorScales = {
                 cholesterol: d3.scaleThreshold().domain([20, 25, 30, 35, 40, 45, 50])
-                    .range(["#fff5eb", "#fee6ce", "#fdae61", "#fd8d3c", "#e6550d", "#a63603", "#7f2704"]),
+                    .range(["#fcc5c0", "#fa9fb5", "#f768a1", "#dd3497", "#ae017e", "#7a0177", "#49006a"]),
                 
                 bloodPressure: d3.scaleThreshold().domain([20, 25, 30, 35, 40, 45, 50])
-                    .range(["#f7fcfd", "#e5f5f9", "#99d8c9", "#66c2a4", "#41ae76", "#238b45", "#005824"]),
+                    .range(["#fdd0a2", "#fdae6b", "#fd8d3c", "#f16913", "#d94801", "#a63603", "#7f2704"]),
                 
-                heartDisease: d3.scaleThreshold().domain([5, 10, 15, 20, 25, 30, 35])
-                    .range(["#edf8fb", "#bfd3e6", "#9ebcda", "#8c96c6", "#8c6bb1", "#88419d", "#6e016b"])
+                heartDisease: d3.scaleThreshold().domain([3, 6, 9, 12, 15, 17, 20])
+                    .range(["#fcbba1", "#fc9272", "#fb6a4a", "#ef3b2c", "#cb181d", "#a50f15", "#67000d"])
             };
 
             function drawMap(variable, mapId, groupId) {
@@ -200,9 +209,9 @@
                         tooltip.style("visibility", "visible")
                             .html(`
                                 <strong>County:</strong> ${info?.name || "Unknown"}, ${info?.state || "N/A"}<br>
-                                <strong>Poverty Rate:</strong> ${info?.poverty || "N/A"}%<br>
-                                <strong>Median Income:</strong> $${info?.income?.toLocaleString() || "N/A"}<br>
-                                <strong>Less than High School:</strong> ${info?.education || "N/A"}%
+                                <strong>High Cholesterol (%): </strong> ${info?.cholesterol || "N/A"}%<br>
+                                <strong>High Blood Pressure (%): </strong> $${info?.bloodPressure || "N/A"}<br>
+                                <strong>Coronary Heart Disease (%): </strong> ${info?.heartDisease || "N/A"}%
                             `)
                             .style("left", (event.pageX + 10) + "px")
                             .style("top", (event.pageY - 20) + "px");

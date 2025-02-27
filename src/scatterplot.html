@@ -1,3 +1,11 @@
+<!-- 
+Scatterplot: Dynamic Comparison
+
+This interactive D3.js scatterplot visualizes relationships between selected health and socioeconomic indicators across U.S. counties. 
+Users can choose different variables for the X and Y axes, filter data by state and urban/rural status, and enable color coding based on urbanization. 
+The visualization supports zooming and panning while ensuring the axes remain in sync. 
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,7 +166,7 @@
 
     svg.call(zoom);
 
-    d3.csv("/data/cleaned_national_health_data_2024.csv").then(data => {
+    d3.csv("/data/Modified_National_Health_Data_2024.csv").then(data => {
       data.forEach(d => {
         d.poverty_perc = +d.poverty_perc;
         d.median_household_income = +d.median_household_income;
@@ -226,7 +234,7 @@
           .attr("cx", d => xScale(d[xVar]))
           .attr("cy", d => yScale(d[yVar]))
           .attr("r", circleRadius)
-          .attr("fill", d => useColor ? colorScale(d.urban_rural_status) : "gray")
+          .attr("fill", d => useColor ? colorScale(d.urban_rural_status) : "#8c6bb1")
           .attr("opacity", 0.85)
           .on("mouseover", (event, d) => {
             tooltip.style("visibility", "visible")
